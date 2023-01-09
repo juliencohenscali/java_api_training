@@ -1,5 +1,6 @@
 package fr.lernejo.navy_battle;
 import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -12,10 +13,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class Server{
-    List<String> shotCase = new ArrayList<>();
-    public Map serverMap = new Map();
-    public Map clientMap = new Map();
+
     public Server(String[] args) throws IOException, InterruptedException {
+        Map serverMap = new Map();
+        Map clientMap = new Map();
+        List<String> shotCase = new ArrayList<>();
+        List<Object> clientGlobalMap = clientMap.flushMap();
+        List<Object> serverGlobalMap = serverMap.flushMap();
+
+
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
         InetSocketAddress address = new InetSocketAddress("localhost", Integer.parseInt(args[0]));
@@ -39,7 +45,7 @@ class Server{
 
                 serverMap.flushMap();
                 clientMap.flushMap();
-                shotCase = new ArrayList<>();
+                shotCase.clear();
 
                 String res = "{\n    \"id\": \"" + id + "\",\n    \"url\": \"http://localhost:" + args[0] + "\",\n    \"message\": \"May the best code win\"\n}";
                 httpExchange.getResponseHeaders().add("From","server");
@@ -58,9 +64,8 @@ class Server{
                 httpExchange.close();
             }
         };// Start context declaration
-
-        GiantHTTPContextDeclaration stupidClass = new GiantHTTPContextDeclaration(serverMap, clientMap, toolMethod, this);
-        HttpHandler httpHandlerApiGameFire = stupidClass.tooBigHttpContextDeclaration;
+        GiantHTTPContextDeclaration stupidClass = new GiantHTTPContextDeclaration();
+        HttpHandler httpHandlerApiGameFire = stupidClass.StupidGiantHTTPContextDeclaration(serverMap, clientMap, toolMethod, this, shotCase, (List<List<String>>) serverGlobalMap.get(1), (char[][]) serverGlobalMap.get(0), (List<List<String>>) clientGlobalMap.get(1), (char[][]) clientGlobalMap.get(0));;
         httpServer.createContext("/ping", httpHandlerPing);
         httpServer.createContext("/api/game/start", httpHandlerApiGameStart);
         httpServer.createContext("/api/game/fire", httpHandlerApiGameFire);

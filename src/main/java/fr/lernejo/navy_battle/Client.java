@@ -7,20 +7,25 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+
 import static java.net.http.HttpClient.newHttpClient;
 
 class Client{
 
-    List<String> shotCase = new ArrayList<>();
-    int lapCount = 0;
 
     public Client(String[] args) throws IOException, InterruptedException, ParseException {
+        List<String> shotCase = new ArrayList<>();
+        List<Object> fireRes = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
         sendStartRequest(id, args);
         boolean isBoatRemaining = true;
+        int lapCount = 1;
         while (isBoatRemaining)     {
-            isBoatRemaining = sendFireRequest(id, args, toolMethod);
+            fireRes = sendFireRequest(id, args, toolMethod, lapCount, shotCase);
+            shotCase = (List<String>) fireRes.get(0);
+            isBoatRemaining = (boolean) fireRes.get(1);
+            lapCount++;
         }
     }
 
@@ -32,7 +37,7 @@ class Client{
         System.out.println(resp.body());
         System.out.println("Sent Start\n");
     }
-    private boolean sendFireRequest(String id, String[] args, ToolMethod toolMethod) throws IOException, ParseException, InterruptedException {
+    private List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase) throws IOException, ParseException, InterruptedException {
         String chosenCase = toolMethod.chooseCase();
         while (shotCase.contains(chosenCase))   {chosenCase = toolMethod.chooseCase();}
         shotCase.add(chosenCase);
@@ -45,20 +50,19 @@ class Client{
         System.out.println(resp.headers().map().get("date"));
         System.out.println("The shot " + consequence + " and radar detection return " + shipLeft);
         System.out.println("Sent Fire, Shot n°: " + lapCount + " \n");
-        lapCount++;
         Thread.sleep(40);
-        return Boolean.parseBoolean(shipLeft);
+        List<Object> res = new ArrayList<>();
+        res.add(shotCase);
+        res.add(Boolean.parseBoolean(shipLeft));
+        return res;
     }
 
     public HttpRequest createFireRequest(String id, String url, String chosenCase) throws ParseException {
         if ((chosenCase.charAt(0)) >= 65 && chosenCase.charAt(0) <= 90){
             if (chosenCase.charAt(1) == 0){
-                chosenCase = "Z2";
-            }
-        }
+                chosenCase = "Z2";}}
         else {
-            chosenCase = "Z1";
-        }
+            chosenCase = "Z1";}
         return HttpRequest.newBuilder()
             .uri(URI.create(url + "/api/game/fire?cell=" + chosenCase))
             .setHeader("Accept", "application/json")
@@ -66,7 +70,6 @@ class Client{
             .version(HttpClient.Version.HTTP_1_1)
             .build();
     }
-
     public HttpRequest createStartRequest(String id, String url) throws ParseException {
         return HttpRequest.newBuilder()
             .uri(URI.create(url + "/api/game/start"))

@@ -1,43 +1,48 @@
 package fr.lernejo.navy_battle;
 import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class GiantHTTPContextDeclaration {
 
-    HttpHandler tooBigHttpContextDeclaration = null;
+    public final HttpHandler tooBigHttpContextDeclaration = null;
 
+    public GiantHTTPContextDeclaration(){
 
-    public GiantHTTPContextDeclaration(Map serverMap, Map clientMap, ToolMethod toolMethod, Server serverInstance){
-        tooBigHttpContextDeclaration = httpExchange -> { //apiGameFire context declaration
+    }
+    public HttpHandler StupidGiantHTTPContextDeclaration(Map serverMap, Map clientMap, ToolMethod toolMethod, Server serverInstance, List<String> shotCase, List<List<String>> serverBoatList, char[][] serverGlobalMap, List<List<String>> clientBoatList, char[][] clientGlobalMap){
+        return httpExchange -> { //apiGameFire context declaration
             if (Objects.equals(httpExchange.getRequestMethod(), "GET"))
             {
                 System.out.println("[*] ApiGameFire " + httpExchange.getRequestMethod() + " From:" + httpExchange.getRemoteAddress().getAddress() + ':' + httpExchange.getRemoteAddress().getPort());
                 String targetedCell = httpExchange.getRequestURI().toString().split("[?]")[1].split("=")[1];
                 System.out.println("[*] Shot in " + targetedCell);
-                List<String> clientFireRes = serverMap.computeResult(targetedCell);
+                List<String> clientFireRes = serverMap.computeResult(targetedCell, serverBoatList, serverGlobalMap);
                 String consequence = clientFireRes.get(0);
                 boolean serverShipLeft = Boolean.parseBoolean(clientFireRes.get(1));
                 boolean clientShipLeft = false;
-                if (!serverShipLeft || serverMap.boatList.toArray().length == 0)    {System.out.println("[*] Server lost, END OF GAME !!");}
+                if (!serverShipLeft || serverBoatList.toArray().length == 0)    {System.out.println("[*] Server lost, END OF GAME !!");}
                 else {
-                    System.out.println("[*] Client shot " + clientFireRes.get(0) + ", server have " + serverMap.boatList.toArray().length + " boat remaining");
-                    System.out.println(serverMap.boatList);
+                    System.out.println("[*] Client shot " + clientFireRes.get(0) + ", server have " + serverBoatList.toArray().length + " boat remaining");
+                    System.out.println(serverBoatList);
                     System.out.println();
+
                     String serverTargetedCell = toolMethod.chooseCase();
-                    while (serverInstance.shotCase.contains(serverTargetedCell))   {serverTargetedCell = toolMethod.chooseCase();}
-                    serverInstance.shotCase.add(serverTargetedCell);
-                    List<String> serverFireRes = clientMap.computeResult(serverTargetedCell);
+                    while (shotCase.contains(serverTargetedCell))   {serverTargetedCell = toolMethod.chooseCase();}
+                    shotCase.add(serverTargetedCell);
+                    List<String> serverFireRes = clientMap.computeResult(serverTargetedCell, clientBoatList, clientGlobalMap);
                     clientShipLeft = Boolean.parseBoolean(serverFireRes.get(1));
-                    if (!clientShipLeft || clientMap.boatList.toArray().length == 0){
+                    if (!clientShipLeft || clientBoatList.toArray().length == 0){
                         System.out.println("[*] Client lost, END OF GAME !!");
                     }
                     else
                     {
-                        System.out.println("[*] Server shot " + serverFireRes.get(0) + ", client have " + clientMap.boatList.toArray().length + " boat remaining");
-                        System.out.println(clientMap.boatList);
+                        System.out.println("[*] Server shot " + serverFireRes.get(0) + ", client have " + clientBoatList.toArray().length + " boat remaining");
+                        System.out.println(clientBoatList);
 
                     }
                 }

@@ -24,7 +24,6 @@ class ToolMethod{
         }
         else {
             return ((char) rnd.nextInt(65, 90));
-
         }
     }
 

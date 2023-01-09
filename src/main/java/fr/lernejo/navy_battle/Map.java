@@ -3,60 +3,61 @@ import java.util.*;
 
 public class Map {
 
-    public List<List<String>> boatList = new ArrayList<>();
-    public char[][] globalMap = null;
-    private final ToolMethod toolMethod = new ToolMethod();
+    public final ToolMethod toolMethod = new ToolMethod();
 
     public Map() throws InterruptedException {
     }
-
-    public void flushMap(){
+    public List<Object> flushMap(){
+        char[][] globalMap = createMap();
+        List<List<String>> boatList = new ArrayList<>();
         List<Integer> sizeList = Arrays.asList(5,4,3,3,2);
         createMap();
         for (Integer b: sizeList) {
-            choosePosition(b);}
+            choosePosition(b, boatList, globalMap);}
+        List<Object> stupidReturn = new ArrayList<>();
+        stupidReturn.add(globalMap);
+        stupidReturn.add(boatList);
+        return stupidReturn;
     }
-
-    public List<String> computeResult(String targetCell){
+    public List<String> computeResult(String targetCell, List<List<String>> boatList, char[][] globalMap){
         List<String> res = new ArrayList<>();
         List<Integer> targetCellInfo = toolMethod.FromCaseToList(targetCell);
         if (globalMap[targetCellInfo.get(0)][targetCellInfo.get(1)] == 'X'){
-            for (List<String> posList: boatList) {
-                if (posList.contains(targetCell)){
-                    posList.remove(targetCell);
-                    if (posList.toArray().length == 0){
-                        boatList.remove(posList);
-                        res.add("sunk");
-                        if (boatList.toArray().length == 0)     {res.add("false");}
-                        else     {res.add("true");}
-                        break;
-                    }
-                    else
-                    {
-                        res.add("hit");
-                        res.add("true");
-                        break;
-                    }}}}
+                res = bigLoop(targetCell, res, boatList);
+            }
         else {
             res.add("miss");
             res.add("true");
         }
         return res;
     }
-
-    public void createMap(){
+    public List<String> bigLoop(String targetCell, List<String> res, List<List<String>> boatList){
+        for (List<String> posList: boatList) {
+            if (posList.contains(targetCell)){
+                posList.remove(targetCell);
+                if (posList.toArray().length == 0){
+                    boatList.remove(posList);
+                    res.add("sunk");
+                    if (boatList.toArray().length == 0)     {res.add("false");}
+                    else     {res.add("true");}
+                    break;
+                }
+                else{res.add("hit");         res.add("true");
+                    break;
+                }}}
+        return res;
+    }
+    public char[][] createMap(){
         char[][] map = new char[10][10];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map.length; j++) {
                 map[i][j] = '0';
             }}
-        globalMap = map;
+        return map;
     }
-
-    public boolean isPositionOk(Integer size, String position){
+    public boolean isPositionOk(Integer size, String position, List<List<String>> boatList){
         if (toolMethod.FromCaseToList(position).get(1) + size > 10){
-            return false;
-        }
+            return false;}
         boolean valid = true;
         for (List<String> m: boatList) {
             for (String v: m) {
@@ -68,13 +69,12 @@ public class Map {
                     }}}}
         return valid;
     }
-
-    public void choosePosition(Integer boat){
+    public void choosePosition(Integer boat, List<List<String>> boatList, char[][] globalMap){
         String place = toolMethod.chooseCase();
-        boolean isPosOk = isPositionOk(boat, place);
+        boolean isPosOk = isPositionOk(boat, place, boatList);
         while (!isPosOk) {
             place = toolMethod.chooseCase();
-            isPosOk = isPositionOk(boat, place);
+            isPosOk = isPositionOk(boat, place, boatList);
         }
         List<Integer> placeInfo = toolMethod.FromCaseToList(place);
         int column = placeInfo.get(0);
@@ -86,5 +86,4 @@ public class Map {
             globalMap[info.get(0)][info.get(1)] = 'X';
         }
         boatList.add(positionList);
-    }
-}
+    }}
