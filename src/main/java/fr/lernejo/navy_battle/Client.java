@@ -1,5 +1,4 @@
 package fr.lernejo.navy_battle;
-import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,7 +12,7 @@ import static java.net.http.HttpClient.newHttpClient;
 class Client{
 
 
-    public Client(String[] args) throws IOException, InterruptedException, ParseException {
+    public Client(String[] args) throws IOException, InterruptedException {
         List<String> shotCase = new ArrayList<>();
         List<Object> fireRes = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
@@ -29,7 +28,7 @@ class Client{
         }
     }
 
-    private void sendStartRequest(String id, String[] args) throws IOException, InterruptedException, ParseException {
+    private void sendStartRequest(String id, String[] args) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
         HttpRequest request = createStartRequest(id, args[1]);
         HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -37,7 +36,7 @@ class Client{
         System.out.println(resp.body());
         System.out.println("Sent Start\n");
     }
-    private List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase) throws IOException, ParseException, InterruptedException {
+    private List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase) throws IOException, InterruptedException {
         String chosenCase = toolMethod.chooseCase();
         while (shotCase.contains(chosenCase))   {chosenCase = toolMethod.chooseCase();}
         shotCase.add(chosenCase);
@@ -57,7 +56,7 @@ class Client{
         return res;
     }
 
-    public HttpRequest createFireRequest(String id, String url, String chosenCase) throws ParseException {
+    public HttpRequest createFireRequest(String id, String url, String chosenCase) {
         if ((chosenCase.charAt(0)) >= 65 && chosenCase.charAt(0) <= 90){
             if (chosenCase.charAt(1) == 0){
                 chosenCase = "Z2";}}
@@ -70,7 +69,7 @@ class Client{
             .version(HttpClient.Version.HTTP_1_1)
             .build();
     }
-    public HttpRequest createStartRequest(String id, String url) throws ParseException {
+    public HttpRequest createStartRequest(String id, String url) {
         return HttpRequest.newBuilder()
             .uri(URI.create(url + "/api/game/start"))
             .setHeader("Accept", "application/json")
