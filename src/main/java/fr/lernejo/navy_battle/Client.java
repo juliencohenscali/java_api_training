@@ -14,18 +14,11 @@ class Client{
 
     public Client(String[] args) throws IOException, InterruptedException {
         List<String> shotCase = new ArrayList<>();
-        List<Object> fireRes = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
         sendStartRequest(id, args);
-        boolean isBoatRemaining = true;
         int lapCount = 1;
-        while (isBoatRemaining)     {
-            fireRes = sendFireRequest(id, args, toolMethod, lapCount, shotCase);
-            shotCase = (List<String>) fireRes.get(0);
-            isBoatRemaining = (boolean) fireRes.get(1);
-            lapCount++;
-        }
+        sendFireRequest(id, args, toolMethod, lapCount, shotCase);
     }
 
     private void sendStartRequest(String id, String[] args) throws IOException, InterruptedException {

@@ -28,7 +28,6 @@ public class GiantHTTPContextDeclaration {
                     System.out.println("[*] Client shot " + clientFireRes.get(0) + ", server have " + serverBoatList.toArray().length + " boat remaining");
                     System.out.println(serverBoatList);
                     System.out.println();
-
                     String serverTargetedCell = toolMethod.chooseCase();
                     while (shotCase.contains(serverTargetedCell))   {serverTargetedCell = toolMethod.chooseCase();}
                     shotCase.add(serverTargetedCell);
@@ -46,6 +45,7 @@ public class GiantHTTPContextDeclaration {
                 }
                 boolean finalRes = clientShipLeft;
                 String res = serverInstance.createFireResponse(consequence, String.valueOf(finalRes));
+                httpExchange.getResponseHeaders().add("Content-Type","application/json");
                 httpExchange.sendResponseHeaders(202, res.getBytes().length);
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(res.getBytes());}
