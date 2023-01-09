@@ -1,9 +1,8 @@
 package fr.lernejo.navy_battle;
-import org.json.simple.parser.ParseException;
 import java.io.*;
 
 public class Launcher{
-    public static void main(String[] args) throws IOException, InterruptedException, ParseException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         if (args.length == 0){
             Test test = new Test();
         }
