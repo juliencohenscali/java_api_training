@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Map {
 
-    public final ToolMethod toolMethod = new ToolMethod();
+    private final ToolMethod toolMethod = new ToolMethod();
 
     public Map() throws InterruptedException {
     }
