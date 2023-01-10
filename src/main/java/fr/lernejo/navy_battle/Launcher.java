@@ -10,7 +10,7 @@ public class Launcher{
             Server server = new Server(args);
         }
         else if (args.length == 2) { //Client
-            Client client = new Client(args);
+            Server client = new Server(args);
         }
     }
 }

@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.net.http.HttpClient.newHttpClient;
 
@@ -13,12 +14,21 @@ class Client{
 
 
     public Client(String[] args) throws IOException, InterruptedException {
+
+    }
+
+    public boolean clientUsage(String[] args) throws IOException, InterruptedException {
         List<String> shotCase = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
         sendStartRequest(id, args);
         int lapCount = 1;
-        sendFireRequest(id, args, toolMethod, lapCount, shotCase);
+        List<Object> m = sendFireRequest(id, args, toolMethod, lapCount, shotCase);
+        return ((boolean) m.get(1));
+    }
+
+    public void serverUsage(){
+
     }
 
     private void sendStartRequest(String id, String[] args) throws IOException, InterruptedException {
@@ -29,7 +39,7 @@ class Client{
         System.out.println(resp.body());
         System.out.println("Sent Start\n");
     }
-    private List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase) throws IOException, InterruptedException {
+    public List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase) throws IOException, InterruptedException {
         String chosenCase = toolMethod.chooseCase();
         while (shotCase.contains(chosenCase))   {chosenCase = toolMethod.chooseCase();}
         shotCase.add(chosenCase);
