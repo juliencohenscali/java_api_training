@@ -17,14 +17,19 @@ class Client{
 
     }
 
-    public boolean clientUsage(String[] args) throws IOException, InterruptedException {
+    public boolean fireUsage(String[] args,String port) throws IOException, InterruptedException {
         List<String> shotCase = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
-        sendStartRequest(id, args);
         int lapCount = 1;
-        List<Object> m = sendFireRequest(id, args, toolMethod, lapCount, shotCase, "client");
-        return ((boolean) m.get(1));
+        List<Object> m = sendFireRequest(id, args, toolMethod, lapCount, shotCase, port);
+        return ((boolean) true);
+    }
+
+    public void sendStartRequest(String[] args) throws IOException, InterruptedException {
+        ToolMethod toolMethod = new ToolMethod();
+        String id = toolMethod.genId();
+        sendStartRequest(id, args);
     }
 
     private void sendStartRequest(String id, String[] args) throws IOException, InterruptedException {
@@ -55,7 +60,7 @@ class Client{
         String shipLeft = (resp.body().replace("\n", "").replace(" ", "").replace("{","").replace("}","").split(",")[1].split(":")[1]);
         System.out.println(resp.headers().map().get("date"));
         System.out.println("[*] The shot in " + chosenCase + " is a " + consequence + " and radar detection return " + shipLeft);
-        Thread.sleep(40);
+        Thread.sleep(50);
         List<Object> res = new ArrayList<>();
         res.add(shotCase);
         res.add(Boolean.parseBoolean(shipLeft));

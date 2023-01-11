@@ -35,7 +35,7 @@ public class GiantHTTPContextDeclaration {
                     os.write(res.getBytes());}
                 if (!endGame){
                     try {
-                        if (!sendRq(id, httpExchange, serverInstance, consequence, true, serverClient, args, toolMethod, shotCase, port)){
+                        if (!sendRq(id, serverClient, args, toolMethod, shotCase, port)){
                             System.out.println("[***] I WON, I'M THE BEST [***]");
                         }
                     } catch (InterruptedException e) {
@@ -54,9 +54,11 @@ public class GiantHTTPContextDeclaration {
         };
     }
 
-    public boolean sendRq(String id, HttpExchange httpExchange, Server serverInstance, String consequence, boolean finalRes, Client clicli, String[] args, ToolMethod toolMethod, List<String> shotCase, String port) throws IOException, InterruptedException {
+    public boolean sendRq(String id, Client clicli, String[] args, ToolMethod toolMethod, List<String> shotCase, String port) throws IOException, InterruptedException {
         return (boolean) (clicli.sendFireRequest(id, args, toolMethod, 0, shotCase, port).get(1));
     }
+
+
 
     public void badRqMethod(HttpExchange httpExchange) throws IOException {
         Headers head = httpExchange.getRequestHeaders();

@@ -21,8 +21,6 @@ class Server{
         Client fireTool = new Client(args);
         Map myMap = new Map();
         List<Object> myGlobalMap = myMap.flushMap();
-        AtomicInteger p = new AtomicInteger();
-        String[] enemyPort = {new String()};
         List<String> shotCase = new ArrayList<>();
         ToolMethod toolMethod = new ToolMethod();
         String id = toolMethod.genId();
@@ -35,7 +33,7 @@ class Server{
             public void handle(HttpExchange httpExchange) throws IOException {
                 Headers head = httpExchange.getRequestHeaders(); System.out.println("[*] Ping From:" + head.get("Host"));String response = "OK";httpExchange.sendResponseHeaders(200, response.getBytes().length);httpExchange.getResponseBody().write(response.getBytes());httpExchange.close();};
             };
-
+        GiantHTTPContextDeclaration stupidClass = new GiantHTTPContextDeclaration();
 
         HttpHandler httpHandlerApiGameStart = new HttpHandler() {
             @Override
@@ -44,17 +42,28 @@ class Server{
                 if (Objects.equals(httpExchange.getRequestMethod(), "POST")) { /*System.out.println(new String(httpExchange.getRequestBody().readAllBytes()));*/System.out.println("[*] ApiGameStart " + httpExchange.getRequestMethod() + " From:" + httpExchange.getRemoteAddress().getAddress() + ':' + httpExchange.getRemoteAddress().getPort());
                     String req = (new String(httpExchange.getRequestBody().readAllBytes()));
                     System.out.println(req);
-                    System.out.println();myMap.flushMap();shotCase.clear();String res = "{\n    \"id\": \"" + id + "\",\n    \"url\": \"http://localhost:" + args[0] + "\",\n    \"message\": \"May the best code win\"\n}";httpExchange.getResponseHeaders().add("From","server");httpExchange.sendResponseHeaders(202, res.getBytes().length);httpExchange.getResponseBody().write(res.getBytes());try (OutputStream os = httpExchange.getResponseBody()) {     os.write(res.getBytes());}httpExchange.close();            }            else{ Headers head = httpExchange.getRequestHeaders();System.out.println("[!] GET request to ApiGameStart From:" + head.get("Host"));String res = "this context only accepts POST request\n";httpExchange.sendResponseHeaders(404, res.getBytes().length);httpExchange.getResponseBody().write(res.getBytes());httpExchange.close();            }        };
+                    System.out.println();
+                    myMap.flushMap();
+                    shotCase.clear();
+                    String res = "{\n    \"id\": \"" + id + "\",\n    \"url\": \"http://localhost:" + args[0] + "\",\n    \"message\": \"May the best code win\"\n}";
+                    httpExchange.getResponseHeaders().add("From","server");
+                    httpExchange.sendResponseHeaders(202, res.getBytes().length);
+                    httpExchange.getResponseBody().write(res.getBytes());
+                    String port = req.replace("\n", "").replace(" ", "").replace("{","").replace("}","").split(",")[1].split(":")[3].replace("\"","");
+                    try {
+                        fireTool.fireUsage(args, port);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try (OutputStream os = httpExchange.getResponseBody()) {     os.write(res.getBytes());}
+                    httpExchange.close();            }            else{ Headers head = httpExchange.getRequestHeaders();System.out.println("[!] GET request to ApiGameStart From:" + head.get("Host"));String res = "this context only accepts POST request\n";httpExchange.sendResponseHeaders(404, res.getBytes().length);httpExchange.getResponseBody().write(res.getBytes());httpExchange.close();            }        };
             };
-        GiantHTTPContextDeclaration stupidClass = new GiantHTTPContextDeclaration();
         HttpHandler httpHandlerApiGameFire = stupidClass.StupidGiantHTTPContextDeclaration(myMap, toolMethod, this, shotCase, (List<List<String>>) myGlobalMap.get(1), (char[][]) myGlobalMap.get(0), fireTool, id, args);;
         httpServer.createContext("/ping", httpHandlerPing); httpServer.createContext("/api/game/start", httpHandlerApiGameStart); httpServer.createContext("/api/game/fire", httpHandlerApiGameFire);
         if (args.length == 2){
             httpServer.start();
+            fireTool.sendStartRequest(args);
 
-            if (fireTool.clientUsage(args))
-            {
-            }
         }
         else
         {
