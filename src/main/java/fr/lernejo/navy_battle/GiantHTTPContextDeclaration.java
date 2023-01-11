@@ -21,37 +21,37 @@ public class GiantHTTPContextDeclaration {
             {
                 System.out.println("[*] ApiGameFire " + httpExchange.getRequestMethod() + " From:" + httpExchange.getRemoteAddress().getAddress() + ':' + httpExchange.getRemoteAddress().getPort());
                 String targetedCell = httpExchange.getRequestURI().toString().split("[?]")[1].split("=")[1];
-                String port = (httpExchange.getRequestHeaders().get("Hook").get(0));System.out.println("[*] Shot in " + targetedCell);
                 List<String> clientFireRes = myMap.computeResult(targetedCell, serverBoatList, serverGlobalMap);
-                String consequence = clientFireRes.get(0);
-                boolean endGame = false;
-                boolean serverShipLeft = Boolean.parseBoolean(clientFireRes.get(1));
+                String consequence = clientFireRes.get(0);boolean endGame = false;boolean serverShipLeft = Boolean.parseBoolean(clientFireRes.get(1));
                 if (!serverShipLeft || serverBoatList.toArray().length == 0)    { endGame = true;}
                 else {System.out.println("[*] Enemy shot " + clientFireRes.get(0) + ", I have " + serverBoatList.toArray().length + " boat remaining");System.out.println(serverBoatList);System.out.println();}
                 String res = createFireResponse(consequence, String.valueOf(serverShipLeft));
                 httpExchange.getResponseHeaders().add("Content-Type","application/json");
                 httpExchange.sendResponseHeaders(202, res.getBytes().length);
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(res.getBytes());}
-                if (!endGame){
-                    try {
-                        if (!sendRq(id, serverClient, args, toolMethod, shotCase, port)){
-                            System.out.println("[***] I WON, I'M THE BEST [***]");
-                        }
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                else
-                {
-                    System.out.println("[*] I lost, END OF GAME !!");
-                    System.exit(0);
-                }
-            }
+                next(httpExchange, res, endGame, id, serverClient, args, toolMethod, shotCase, serverInstance);}
             else
             {badRqMethod(httpExchange);}
             httpExchange.close();
         };
+    }
+
+    private void next(HttpExchange httpExchange, String res, boolean endGame, String id, Client serverClient, String[] args, ToolMethod toolMethod, List<String> shotCase, Server serverInstance) throws IOException {
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            os.write(res.getBytes());}
+        if (!endGame){
+            try {
+                if (!sendRq(id, serverClient, args, toolMethod, shotCase, serverInstance.enemyPort)){
+                    System.out.println("[***] I WON, I'M THE BEST [***]");
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else
+        {
+            System.out.println("[*] I lost, END OF GAME !!");
+            System.exit(0);
+        }
     }
 
     public boolean sendRq(String id, Client clicli, String[] args, ToolMethod toolMethod, List<String> shotCase, String port) throws IOException, InterruptedException {

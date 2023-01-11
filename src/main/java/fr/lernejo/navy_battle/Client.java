@@ -23,7 +23,7 @@ class Client{
         String id = toolMethod.genId();
         int lapCount = 1;
         List<Object> m = sendFireRequest(id, args, toolMethod, lapCount, shotCase, port);
-        return ((boolean) true);
+        return (true);
     }
 
     public void sendStartRequest(String[] args) throws IOException, InterruptedException {
@@ -43,27 +43,17 @@ class Client{
     public List<Object> sendFireRequest(String id, String[] args, ToolMethod toolMethod, int lapCount, List<String> shotCase, String port) throws IOException, InterruptedException {
         String chosenCase = toolMethod.chooseCase();
         while (shotCase.contains(chosenCase))   {chosenCase = toolMethod.chooseCase();}
-        System.out.println(shotCase);
         shotCase.add(chosenCase);
         HttpClient client = newHttpClient();
         HttpRequest request = null;
-        if (args.length == 2){
-            request = createFireRequest(id, args[1], chosenCase, args);
-        }
-        else
-        {
-            request = createFireRequest(id, "http://localhost:" + port, chosenCase, args);
-        }
+        if (args.length == 2){request = createFireRequest(id, args[1], chosenCase, args);}
+        else {request = createFireRequest(id, "http://localhost:" + port, chosenCase, args);}
         HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         String consequence = (resp.body().replace("\n", "").replace(" ", "").replace("{","").replace("}","").split(",")[0].split(":")[1].replace("\"",""));
         String shipLeft = (resp.body().replace("\n", "").replace(" ", "").replace("{","").replace("}","").split(",")[1].split(":")[1]);
-        System.out.println(resp.headers().map().get("date"));
-        System.out.println("[*] The shot in " + chosenCase + " is a " + consequence + " and radar detection return " + shipLeft);
-        Thread.sleep(50);
+        System.out.println(resp.headers().map().get("date"));System.out.println("[*] The shot in " + chosenCase + " is a " + consequence + " and radar detection return " + shipLeft);Thread.sleep(50);
         List<Object> res = new ArrayList<>();
-        res.add(shotCase);
-        res.add(Boolean.parseBoolean(shipLeft));
+        res.add(shotCase);res.add(Boolean.parseBoolean(shipLeft));
         return res;
     }
 
