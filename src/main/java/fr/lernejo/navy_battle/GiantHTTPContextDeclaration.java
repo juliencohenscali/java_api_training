@@ -21,69 +21,41 @@ public class GiantHTTPContextDeclaration {
             {
                 System.out.println("[*] ApiGameFire " + httpExchange.getRequestMethod() + " From:" + httpExchange.getRemoteAddress().getAddress() + ':' + httpExchange.getRemoteAddress().getPort());
                 String targetedCell = httpExchange.getRequestURI().toString().split("[?]")[1].split("=")[1];
-                System.out.println("[*] Shot in " + targetedCell);
+                String port = (httpExchange.getRequestHeaders().get("Hook").get(0));System.out.println("[*] Shot in " + targetedCell);
                 List<String> clientFireRes = myMap.computeResult(targetedCell, serverBoatList, serverGlobalMap);
                 String consequence = clientFireRes.get(0);
                 boolean endGame = false;
                 boolean serverShipLeft = Boolean.parseBoolean(clientFireRes.get(1));
                 if (!serverShipLeft || serverBoatList.toArray().length == 0)    { endGame = true;}
-                else {
-                    System.out.println("[*] Client shot " + clientFireRes.get(0) + ", server have " + serverBoatList.toArray().length + " boat remaining");
-                    System.out.println(serverBoatList);
-                    System.out.println();
-                    String serverTargetedCell = toolMethod.chooseCase();
-                    while (shotCase.contains(serverTargetedCell))   {serverTargetedCell = toolMethod.chooseCase();}
-                    shotCase.add(serverTargetedCell);
-
-                    //Fire from server, request to client
-                    /*
-                    clientShipLeft = Boolean.parseBoolean(serverFireRes.get(1));
-                    if (!clientShipLeft || clientBoatList.toArray().length == 0){
-                        System.out.println("[*] Client lost, END OF GAME !!");
-                        endGame = true;
-                    }
-                    else
-                    {
-                        System.out.println("[*] Server shot " + serverFireRes.get(0) + ", client have " + clientBoatList.toArray().length + " boat remaining");
-                        System.out.println(clientBoatList);
-                    }
-
-
-
-                    */
-                }
+                else {System.out.println("[*] Enemy shot " + clientFireRes.get(0) + ", I have " + serverBoatList.toArray().length + " boat remaining");System.out.println(serverBoatList);System.out.println();}
                 String res = createFireResponse(consequence, String.valueOf(serverShipLeft));
                 httpExchange.getResponseHeaders().add("Content-Type","application/json");
                 httpExchange.sendResponseHeaders(202, res.getBytes().length);
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(res.getBytes());}
-
                 if (!endGame){
                     try {
-                        sendRq(id, httpExchange, serverInstance, consequence, true, serverClient, args, toolMethod, shotCase);
+                        if (!sendRq(id, httpExchange, serverInstance, consequence, true, serverClient, args, toolMethod, shotCase, port)){
+                            System.out.println("[***] I WON, I'M THE BEST [***]");
+                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                 }
                 else
                 {
-                    System.out.println("[*] Server lost, END OF GAME !!");
+                    System.out.println("[*] I lost, END OF GAME !!");
                     System.exit(0);
                 }
-
             }
             else
             {badRqMethod(httpExchange);}
-            System.out.println();
+            httpExchange.close();
         };
     }
 
-    public void sendRq(String id, HttpExchange httpExchange, Server serverInstance, String consequence, boolean finalRes, Client clicli, String[] args, ToolMethod toolMethod, List<String> shotCase) throws IOException, InterruptedException {
-        clicli.sendFireRequest(id, args, toolMethod, 0, shotCase);
-        System.out.println();
-        httpExchange.close();
-
+    public boolean sendRq(String id, HttpExchange httpExchange, Server serverInstance, String consequence, boolean finalRes, Client clicli, String[] args, ToolMethod toolMethod, List<String> shotCase, String port) throws IOException, InterruptedException {
+        return (boolean) (clicli.sendFireRequest(id, args, toolMethod, 0, shotCase, port).get(1));
     }
 
     public void badRqMethod(HttpExchange httpExchange) throws IOException {
